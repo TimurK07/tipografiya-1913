@@ -1,0 +1,603 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Типография 1913</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=PT+Serif:ital,wght@0,400;0,700;1,400&family=Onest:wght@400;500;600&display=swap">
+<style>
+:root{
+  color-scheme:dark;
+  --ink:#F2E8D4; --muted:#CDBFA3; --faint:#998C76; --paper:#F1E7D2; --dark:#221A12; --red:#A8322A; --red2:#C8463B; --gold:#D9A441; --blue:#2F5F8F;
+  --glass:rgba(22,16,10,.8); --line:rgba(242,232,212,.22);
+  --display:"Oswald","Arial Narrow",Impact,sans-serif; --serif:"PT Serif",Georgia,serif; --body:"Onest","Segoe UI",Roboto,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%;margin:0;background:#15100b;color:var(--ink);font-family:var(--body);overflow:hidden}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+#c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
+.loading{position:fixed;inset:0;display:grid;place-items:center;background:#15100b;z-index:50;transition:opacity .8s}
+.loading.done{opacity:0;pointer-events:none}
+.loading div{display:flex;flex-direction:column;align-items:center;gap:14px;font-family:var(--display);font-size:22px;letter-spacing:.08em;text-transform:uppercase;color:var(--paper)}
+.bar{width:220px;height:3px;background:rgba(242,232,212,.18);border-radius:3px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--gold);transition:width .3s}
+
+.overlay{position:fixed;inset:0;display:flex;align-items:center;padding:24px clamp(16px,6vw,96px);z-index:30;pointer-events:none}
+.overlay > *{pointer-events:auto}
+.intro{background:linear-gradient(90deg,rgba(15,10,6,.92) 0%,rgba(15,10,6,.6) 45%,rgba(15,10,6,0) 75%)}
+.intro-in{max-width:640px;display:flex;flex-direction:column;gap:18px}
+.eyebrow{font-family:var(--display);font-weight:500;font-size:15px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold)}
+.intro h1{margin:0;font-family:var(--serif);font-weight:700;font-size:clamp(50px,7.4vw,112px);line-height:.95;text-shadow:0 6px 40px rgba(0,0,0,.6)}
+.intro h1 em{display:block;font-style:italic;font-weight:400;font-size:.46em;color:var(--muted);margin-top:10px}
+.intro p{margin:0;font-size:clamp(16px,1.4vw,20px);line-height:1.55;color:var(--muted);max-width:46ch}
+.cta{align-self:flex-start;display:inline-flex;align-items:center;gap:12px;background:var(--red);color:#FFF4E4;border:0;border-radius:6px;padding:16px 28px 16px 22px;font-family:var(--display);font-weight:600;font-size:21px;letter-spacing:.08em;text-transform:uppercase;box-shadow:0 12px 34px rgba(168,50,42,.4);transition:transform .2s,background .2s}
+.cta:hover{transform:translateY(-2px);background:var(--red2)}
+.cta svg{width:26px;height:26px}
+.keys{font-size:13px;color:var(--faint)}
+
+.hud{position:fixed;left:0;right:0;top:0;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:calc(14px + env(safe-area-inset-top,0px)) 18px 14px;z-index:12;pointer-events:none}
+.hud > *{pointer-events:auto}
+.brand{font-family:var(--serif);font-weight:700;font-size:24px;text-shadow:0 2px 14px rgba(0,0,0,.7)}
+.brand small{display:block;font-family:var(--body);font-weight:500;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.ghost{background:var(--glass);border:1px solid var(--line);border-radius:6px;padding:9px 14px;font-size:14px;backdrop-filter:blur(8px)}
+.ghost:hover{border-color:var(--paper)}
+
+.cap{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:12;width:min(980px,calc(100% - 24px));background:var(--glass);border:1px solid var(--line);border-radius:10px;padding:12px 18px;backdrop-filter:blur(10px);display:flex;gap:16px;align-items:center;transition:opacity .4s}
+.cap.off{opacity:0;pointer-events:none}
+.cap b{flex:none;font-family:var(--display);font-weight:600;font-size:15px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);max-width:30%}
+.cap span{font-size:clamp(15px,1.15vw,18px);line-height:1.45}
+.cap span i{font-style:normal;color:#F5D58E;font-weight:600}
+
+.nav{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:12;display:flex;align-items:center;gap:8px;background:var(--glass);border:1px solid var(--line);border-radius:10px;padding:8px;backdrop-filter:blur(10px);max-width:calc(100% - 20px)}
+.steps{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
+.step{border:0;background:none;color:var(--muted);font-family:var(--display);font-size:13.5px;letter-spacing:.03em;padding:7px 9px;border-radius:6px;white-space:nowrap}
+.step.on{background:var(--paper);color:var(--dark)}
+.step.done{color:var(--ink)}
+.arrow{background:var(--red);color:#fff4e4;border:0;border-radius:6px;padding:9px 16px;font-family:var(--display);font-weight:600;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+.arrow.back{background:rgba(242,232,212,.12)}
+.arrow:disabled{opacity:.45;cursor:default}
+
+.final{background:radial-gradient(900px 560px at 50% 45%,rgba(15,10,6,.55),rgba(15,10,6,.93));justify-content:center;overflow-y:auto}
+.final-in{max-width:1000px;width:100%;display:flex;flex-direction:column;gap:16px}
+.final h2{margin:0;font-family:var(--serif);font-weight:700;font-size:clamp(36px,4.8vw,64px);line-height:1.02}
+.final p{margin:0;color:var(--muted);font-size:17px;line-height:1.55;max-width:70ch}
+.cmp{width:100%;border-collapse:collapse;background:var(--paper);color:var(--dark);border-radius:8px;overflow:hidden;font-size:15px;line-height:1.42}
+.cmp th{font-family:var(--serif);font-size:22px;padding:12px 14px;text-align:left;background:#e4d6b8}
+.cmp th:first-child{width:18%;font-family:var(--display);font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:var(--red)}
+.cmp td{padding:10px 14px;border-top:1px solid rgba(34,26,18,.15);vertical-align:top}
+.cmp td:first-child{font-family:var(--display);font-weight:600;letter-spacing:.04em;text-transform:uppercase;font-size:13.5px;color:#6a5a44}
+.cmp tr.same td{background:#efe3c6}
+
+@media (max-width:760px){
+  .step{display:none}.step.on{display:block}
+  .cap{flex-direction:column;align-items:flex-start;gap:4px;bottom:calc(76px + env(safe-area-inset-bottom,0px))}
+  .cap b{max-width:none}
+  .intro{background:linear-gradient(0deg,rgba(15,10,6,.94) 0%,rgba(15,10,6,.6) 55%,rgba(15,10,6,.1) 100%);align-items:flex-end;padding-bottom:40px}
+  .final{align-items:flex-start;padding-top:28px;padding-bottom:40px}
+  .cmp{font-size:13px}.cmp th{font-size:17px}
+  .brand{font-size:19px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<canvas id="c" aria-label="3D-типография"></canvas>
+<div class="loading" id="loading"><div>Набираем шрифт…<span class="bar"><i id="loadbar"></i></span></div></div>
+
+<div class="overlay intro" id="intro">
+  <div class="intro-in">
+    <div class="eyebrow">Казахская пресса · 1911–1918</div>
+    <h1>Типография<em>«Айқап» против «Қазақ»</em></h1>
+    <p>Два главных казахских издания начала XX века спорили о будущем народа. Напечатаем оба — и сравним их страницу за страницей.</p>
+    <button class="cta" id="start" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>Войти в типографию</button>
+    <span class="keys">→ / ← — шаги · клик по газете — приблизить · мышью — осмотреться</span>
+  </div>
+</div>
+
+<header class="hud" id="hud" hidden>
+  <div class="brand">Типография 1913<small>«Айқап» и «Қазақ»</small></div>
+  <button class="ghost" id="fs" type="button">⛶ Экран</button>
+</header>
+
+<div class="cap off" id="cap"><b id="capT"></b><span id="capX"></span></div>
+
+<nav class="nav" id="nav" hidden aria-label="Шаги">
+  <button class="arrow back" id="prev" type="button">←</button>
+  <div class="steps" id="steps"></div>
+  <button class="arrow" id="next" type="button">Дальше →</button>
+</nav>
+
+<div class="overlay final" id="final" hidden>
+  <div class="final-in">
+    <div class="eyebrow">Итог сравнения</div>
+    <h2>Одна цель — два пути</h2>
+    <p>И «Айқап», и «Қазақ» хотели одного: сохранить землю, просветить народ и защитить его права. Спорили о другом — как быстро меняться и на что опираться.</p>
+    <table class="cmp" id="cmp"></table>
+    <button class="cta" id="back" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>Вернуться в типографию</button>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>window.THREE || document.write('<script src="three.min.js"><\/script>')</script>
+<script>
+// two papers: cover + 4 topics + common page
+const PAPERS = {
+  a: { name:"АЙҚАП", arab:"ايقاپ", kind:"Журнал", city:"Троицк", years:"1911–1915", portrait:"seralin",
+    cover:[["Редактор","Мухамеджан Сералин"],["Выходил","раз в месяц, затем два раза в месяц"],["Вышло","88 номеров"],["Направление","просвещение, оседлость, обновление ислама"]],
+    motto:"Открытая трибуна для всех, кто думает о будущем казахов" },
+  k: { name:"ҚАЗАҚ", arab:"قازاق", kind:"Газета", city:"Оренбург", years:"1913–1918", portrait:"baitursynov",
+    cover:[["Редакторы","Ахмет Байтурсынов, Миржакып Дулатов"],["Автор","Алихан Бокейханов"],["Тираж","до 8 тысяч экземпляров"],["Вышло","265 номеров"]],
+    motto:"Голос казахской интеллигенции — будущей партии «Алаш»" },
+};
+const TOPICS = [
+  { t:"Как жить дальше?", short:"Оседлость", diff:"«Айқап» звал к <i>быстрому переходу к оседлости</i>, «Қазақ» — к <i>постепенному</i>, по воле самого народа.",
+    a:{ h:"Пора осесть на землю", img:"e2", p:["Кочевое хозяйство не выдержит натиска переселенцев.","Оседлый аул получает надел и может защитить свою землю.","Земледелие, дома и школы — путь к прогрессу."] },
+    k:{ h:"Не спешить с оседанием", img:"e1", p:["Степь — земля скотоводов: в засуху без кочёвки скот погибнет.","Переходить к оседлости нужно постепенно и по своей воле.","Скотоводство надо улучшать, а не ломать."] } },
+  { t:"Чья земля?", short:"Земля", diff:"«Айқап» предлагал <i>закрепить землю, приняв наделы</i>, «Қазақ» требовал <i>остановить изъятие земель</i> и сначала обеспечить казахов.",
+    a:{ h:"Закрепить землю наделом", img:"e3", p:["Принять наделы по крестьянской норме, пока землю не отдали переселенцам.","Освоенная земля — защищённая земля.","Кто не осядет — рискует остаться ни с чем."] },
+    k:{ h:"Земля принадлежит народу", img:"e3", p:["Прекратить изъятие «излишков» и переселение.","Сначала обеспечить землёй казахов, затем — остальных.","Крестьянская норма мала для скотовода."] } },
+  { t:"Вера и знание", short:"Вера и школа", diff:"«Айқап» опирался на <i>обновлённый ислам и джадидские школы</i>, «Қазақ» — на <i>светскую школу и родной язык</i>.",
+    a:{ h:"Просвещение через обновлённый ислам", img:"e4", p:["Поддерживал джадидов — новометодные мектебы и медресе.","Выступал за отдельное духовное управление для казахов.","Вера и наука не противоречат друг другу."] },
+    k:{ h:"Школа на родном языке", img:"e5", p:["Главное — светская школа и родной язык.","Байтурсынов создал новый алфавит и букварь «Оқу құралы» (1912).","Религия — часть культуры, но не основа политики."] } },
+  { t:"Политика и будущее", short:"Политика", diff:"«Айқап» был <i>открытой трибуной для реформ внутри империи</i>, «Қазақ» <i>сплачивал интеллигенцию</i> и стал голосом партии «Алаш».",
+    a:{ h:"Реформы внутри империи", img:null, p:["Отстаивал права казахов через прессу и петиции.","Давал слово авторам разных взглядов.","Закрылся в 1915 году из-за финансовых трудностей."] },
+    k:{ h:"Национальное единство", img:"e6", p:["Объединял интеллигенцию — будущих лидеров «Алаш».","Готовил идею автономии и участия в выборах.","В 1917 году стал голосом партии «Алаш», закрыт в 1918 году."] } },
+];
+const COMMON = { t:"Что их объединяло", short:"Общее", diff:"Оба издания боролись <i>за землю, просвещение и права казахов</i> — спорили лишь о путях.",
+  p:["Защита казахской земли от изъятия","Просвещение и борьба с невежеством","Развитие казахского языка и литературы","Права казахов в Российской империи"] };
+const STEPS = [
+  { short:"Типография", t:"Казахская пресса", x:"В 1910-е годы у казахов появилась своя печать. Самые влиятельные издания — <i>журнал «Айқап»</i> и <i>газета «Қазақ»</i> — по-разному видели будущее народа." },
+  { short:"«Айқап»", t:"Печатаем «Айқап»", x:"Журнал «Айқап» («Ясно», «Очевидно») выходил в Троицке в 1911–1915 годах. Редактор — <i>Мухамеджан Сералин</i>." },
+  { short:"«Қазақ»", t:"Печатаем «Қазақ»", x:"Газета «Қазақ» выходила в Оренбурге в 1913–1918 годах. Её создали <i>Ахмет Байтурсынов, Миржакып Дулатов и Алихан Бокейханов</i>." },
+  ...TOPICS.map((t) => ({ short:t.short, t:t.t, x:t.diff })),
+  { short:COMMON.short, t:COMMON.t, x:COMMON.diff },
+  { short:"Итог", t:"Итог", x:"" },
+];
+const CMP = [
+  ["Тип и город", "Журнал, Троицк, 1911–1915", "Газета, Оренбург, 1913–1918"],
+  ["Руководители", "Мухамеджан Сералин", "А. Байтурсынов, М. Дулатов, А. Бокейханов"],
+  ["Оседлость", "Быстрый переход к оседлости и земледелию", "Постепенно, по воле народа, развивать скотоводство"],
+  ["Земля", "Принять наделы, чтобы закрепить землю", "Остановить изъятие земель и переселение"],
+  ["Вера и школа", "Обновлённый ислам, джадидские школы", "Светская школа, родной язык, новый алфавит"],
+  ["Политика", "Реформы внутри империи, открытая трибуна", "Национальное единство → партия «Алаш», автономия"],
+];
+(function () {
+"use strict";
+const A = "assets/";
+const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+const lerp = (a, b, t) => a + (b - a) * t;
+const easeIO = (p) => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+const isMobile = () => innerWidth <= 760;
+const $ = (id) => document.getElementById(id);
+
+// ---------- renderer
+const canvas = $("c");
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: "high-performance" });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.1;
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+const scene = new THREE.Scene(); scene.background = new THREE.Color(0x15100b);
+scene.fog = new THREE.Fog(0x15100b, 12, 30);
+const camera = new THREE.PerspectiveCamera(45, 1, .05, 100);
+const maxAniso = renderer.capabilities.getMaxAnisotropy();
+const manager = new THREE.LoadingManager();
+manager.onProgress = (u, l, t) => { $("loadbar").style.width = (l / t * 100) + "%"; };
+
+// ---------- images (optional)
+const IMG = {};
+["e1", "e2", "e3", "e4", "e5", "e6", "shop", "paper", "seralin", "baitursynov"].forEach((k) => {
+  manager.itemStart(k); const im = new Image();
+  im.onload = () => { IMG[k] = im; manager.itemEnd(k); onImg(k); }; im.onerror = () => manager.itemEnd(k);
+  im.src = A + k + ".jpg";
+});
+const imgWaiters = [];
+function onImg(k) { imgWaiters.forEach((f) => f(k)); }
+
+// ---------- helpers
+const M = (color, o) => new THREE.MeshStandardMaterial(Object.assign({ color, roughness: .8, metalness: 0 }, o || {}));
+function add(p, geo, mat, x, y, z, o) { const m = new THREE.Mesh(geo, mat); m.position.set(x || 0, y || 0, z || 0); if (o) { if (o.rx) m.rotation.x = o.rx; if (o.ry) m.rotation.y = o.ry; if (o.rz) m.rotation.z = o.rz; } m.castShadow = true; m.receiveShadow = true; p.add(m); return m; }
+const box = (p, w, h, d, mat, x, y, z, o) => add(p, new THREE.BoxGeometry(w, h, d), mat, x, y, z, o);
+const cyl = (p, rt, rb, h, mat, x, y, z, o, seg) => add(p, new THREE.CylinderGeometry(rt, rb, h, seg || 20), mat, x, y, z, o);
+function ctex(w, h, draw) { const c = document.createElement("canvas"); c.width = w; c.height = h; const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; t.anisotropy = maxAniso; t.draw = () => { draw(c.getContext("2d"), w, h); t.needsUpdate = true; }; t.draw(); return t; }
+function woodTex(base, dark, w, h, rep) {
+  const t = ctex(w || 512, h || 512, (g, W, H) => {
+    g.fillStyle = base; g.fillRect(0, 0, W, H);
+    for (let i = 0; i < 260; i++) { g.strokeStyle = `rgba(${dark},${Math.random() * .25})`; g.lineWidth = 1 + Math.random() * 3; const y = Math.random() * H; g.beginPath(); g.moveTo(0, y); for (let x = 0; x <= W; x += 32) g.lineTo(x, y + Math.sin(x * .01 + i) * 4); g.stroke(); }
+    g.fillStyle = "rgba(0,0,0,.35)"; for (let y = 0; y < H; y += H / 6) g.fillRect(0, y, W, 2);
+  });
+  t.wrapS = t.wrapT = THREE.RepeatWrapping; if (rep) t.repeat.set(rep[0], rep[1]); return t;
+}
+
+// ---------- room
+const floorT = woodTex("#4a3220", "20,10,4", 512, 512, [6, 6]);
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), M(0xffffff, { map: floorT, roughness: .85 })); floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; scene.add(floor);
+const backMat = new THREE.MeshBasicMaterial({ color: 0x2a1e14, fog: false });
+const back = new THREE.Mesh(new THREE.PlaneGeometry(26, 14.6), backMat); back.position.set(0, 5.4, -7); scene.add(back);
+imgWaiters.push((k) => { if (k === "shop") { const t = new THREE.Texture(IMG.shop); t.encoding = THREE.sRGBEncoding; t.needsUpdate = true; backMat.map = t; backMat.color.set(0x8a7a66); backMat.needsUpdate = true; } });
+// side walls with type cases
+const brickT = ctex(512, 512, (g, W, H) => { g.fillStyle = "#3a2216"; g.fillRect(0, 0, W, H); for (let y = 0; y < H; y += 32) for (let x = (y / 32) % 2 ? -32 : 0; x < W; x += 64) { g.fillStyle = `hsl(14,${30 + Math.random() * 15}%,${18 + Math.random() * 8}%)`; g.fillRect(x + 2, y + 2, 60, 28); } });
+brickT.wrapS = brickT.wrapT = THREE.RepeatWrapping; brickT.repeat.set(4, 2);
+[-1, 1].forEach((s) => { const w = new THREE.Mesh(new THREE.PlaneGeometry(16, 8), M(0xffffff, { map: brickT, roughness: 1 })); w.position.set(s * 7.5, 4, -1); w.rotation.y = -s * Math.PI / 2; w.receiveShadow = true; scene.add(w); });
+const caseT = ctex(512, 512, (g, W, H) => { g.fillStyle = "#3c2716"; g.fillRect(0, 0, W, H); for (let y = 8; y < H; y += 40) for (let x = 8; x < W; x += 40) { g.fillStyle = "#1d130a"; g.fillRect(x, y, 34, 34); g.fillStyle = "rgba(190,190,200,.35)"; for (let k = 0; k < 6; k++) g.fillRect(x + 4 + Math.random() * 24, y + 4 + Math.random() * 24, 4, 4); } });
+[-1, 1].forEach((s) => { const g = new THREE.Group(); g.position.set(s * 5.2, 0, -2.6); g.rotation.y = -s * .5; scene.add(g);
+  const wood = M(0x5a3a22, { roughness: .7 });
+  box(g, 2.6, 1.6, .9, wood, 0, .8, 0);
+  const top = box(g, 2.6, .06, 1.1, M(0xffffff, { map: caseT, roughness: .7 }), 0, 1.68, .05); top.rotation.x = .35;
+  box(g, 2.8, 2.4, .2, wood, 0, 2.9, -.5); for (let y = 1.95; y < 4; y += .45) box(g, 2.6, .04, .3, M(0x2c1c10), 0, y, -.35);
+  for (let k = 0; k < 5; k++) box(g, .6 + Math.random() * .3, .12 + Math.random() * .2, .7, M(0xe9e0c8, { roughness: 1 }), -.8 + k * .4, 1.75 + k * .02, .1, { ry: Math.random() * .3 });
+});
+// drying lines with sheets
+const sheetMat = M(0xe6dcc4, { roughness: 1, side: THREE.DoubleSide });
+for (let k = 0; k < 9; k++) { const sh = new THREE.Mesh(new THREE.PlaneGeometry(.55, .75), sheetMat); sh.position.set(-3.6 + k * .9, 3.75, -4.2 + (k % 2) * .2); sh.rotation.y = (Math.random() - .5) * .4; scene.add(sh); }
+const lineGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-4.2, 4.15, -4.1), new THREE.Vector3(4.2, 4.15, -4.1)]); scene.add(new THREE.Line(lineGeo, new THREE.LineBasicMaterial({ color: 0x1a120a })));
+
+// ---------- lights
+scene.add(new THREE.HemisphereLight(0xffe3b8, 0x2a1a0e, .55));
+const key = new THREE.SpotLight(0xffd9a0, 3.2, 20, .6, .5, 1.2); key.position.set(2.5, 6.5, 3.5); key.target.position.set(0, 1, 0); key.castShadow = true; key.shadow.mapSize.set(2048, 2048); key.shadow.bias = -.0005; scene.add(key, key.target);
+const fill = new THREE.PointLight(0xffb070, 1.2, 12, 2); fill.position.set(-3, 3, 2); scene.add(fill);
+const readLight = new THREE.PointLight(0xfff0d8, 0, 8, 1.6); readLight.position.set(0, 3.2, 4.4); scene.add(readLight);
+function glowTex() { return ctex(128, 128, (g) => { const gr = g.createRadialGradient(64, 64, 0, 64, 64, 64); gr.addColorStop(0, "rgba(255,236,190,1)"); gr.addColorStop(.3, "rgba(255,170,80,.5)"); gr.addColorStop(1, "rgba(0,0,0,0)"); g.fillStyle = gr; g.fillRect(0, 0, 128, 128); }); }
+const GLOW = glowTex();
+[[-2.6, 4.6, -1.5], [2.6, 4.6, -1.5], [0, 4.9, 1.2]].forEach(([x, y, z]) => {
+  const g = new THREE.Group(); g.position.set(x, y, z); scene.add(g);
+  cyl(g, .01, .01, 1.2, M(0x111111), 0, .6, 0, null, 4); cyl(g, .18, .26, .2, M(0x2a2420, { metalness: .5 }), 0, 0, 0, null, 14);
+  const glass = new THREE.Mesh(new THREE.SphereGeometry(.13, 12, 10), new THREE.MeshBasicMaterial({ color: 0xffd9a0 })); glass.position.y = -.15; g.add(glass);
+  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: GLOW, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending })); s.scale.setScalar(1.6); s.position.y = -.15; g.add(s);
+  const l = new THREE.PointLight(0xffb060, .9, 6, 2); l.position.y = -.2; g.add(l);
+});
+
+// ---------- the hand press (Albion type), front = +z, bed runs along z
+// environment reflections for metal (press only)
+const envTex = (function () {
+  const t = ctex(512, 256, (g, W, H) => {
+    const gr = g.createLinearGradient(0, 0, 0, H); gr.addColorStop(0, "#2a1c10"); gr.addColorStop(.42, "#8a6238"); gr.addColorStop(.5, "#f0c890"); gr.addColorStop(.58, "#5a3e24"); gr.addColorStop(1, "#1a120a");
+    g.fillStyle = gr; g.fillRect(0, 0, W, H);
+    [[90, 70], [256, 60], [420, 75]].forEach(([x, y]) => { const r = g.createRadialGradient(x, y, 0, x, y, 40); r.addColorStop(0, "rgba(255,230,180,1)"); r.addColorStop(1, "rgba(255,200,120,0)"); g.fillStyle = r; g.fillRect(x - 40, y - 40, 80, 80); });
+  });
+  t.mapping = THREE.EquirectangularReflectionMapping; return t;
+})();
+const iron = M(0x1e1f22, { metalness: .75, roughness: .32, envMap: envTex, envMapIntensity: 1.1 });
+const ironG = M(0xd4a84a, { metalness: .9, roughness: .25, envMap: envTex, envMapIntensity: 1.2 });
+const steel = M(0xc4c8cc, { metalness: .95, roughness: .18, envMap: envTex, envMapIntensity: 1.3 });
+const woodM = M(0x7a4a26, { roughness: .45, envMap: envTex, envMapIntensity: .3 });
+const ironRed = M(0x7a1e18, { metalness: .5, roughness: .35, envMap: envTex, envMapIntensity: .8 });
+function roundRectShape(w, h, r) { const s = new THREE.Shape(), x = -w / 2, y = -h / 2; s.moveTo(x + r, y); s.lineTo(x + w - r, y); s.quadraticCurveTo(x + w, y, x + w, y + r); s.lineTo(x + w, y + h - r); s.quadraticCurveTo(x + w, y + h, x + w - r, y + h); s.lineTo(x + r, y + h); s.quadraticCurveTo(x, y + h, x, y + h - r); s.lineTo(x, y + r); s.quadraticCurveTo(x, y, x + r, y); return s; }
+function rbox(p, w, h, d, mat, x, y, z, r, o) { // rounded box: w(x) h(y) d(z)
+  const b = Math.min(r || .03, d / 2 - .001, w / 2 - .001, h / 2 - .001);
+  const g = new THREE.ExtrudeGeometry(roundRectShape(w - 2 * b, h - 2 * b, Math.min(b * 1.2, (h - 2 * b) / 2)), { depth: d - 2 * b, bevelEnabled: true, bevelSize: b, bevelThickness: b, bevelSegments: 4, curveSegments: 8 });
+  g.translate(0, 0, -(d - 2 * b) / 2); return add(p, g, mat, x, y, z, o);
+}
+function lathe(p, pts, mat, x, y, z, seg, o) { return add(p, new THREE.LatheGeometry(pts.map(([r, h]) => new THREE.Vector2(r, h)), seg || 32), mat, x, y, z, o); }
+function bolt(p, x, y, z, rx, ry) { const b = add(p, new THREE.SphereGeometry(.022, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2), steel, x, y, z); b.rotation.set(rx || 0, ry || 0, 0); return b; }
+const press = new THREE.Group(); scene.add(press);
+
+// --- cast-iron frame: one arched piece with an opening (extruded with bevels)
+(function frame() {
+  const s = new THREE.Shape();
+  s.moveTo(-.86, 0); s.lineTo(-.62, 0); s.lineTo(-.62, .18);
+  s.bezierCurveTo(-.6, .5, -.56, 1.6, -.6, 2.05);
+  s.bezierCurveTo(-.62, 2.3, -.4, 2.52, 0, 2.56);
+  s.bezierCurveTo(.4, 2.52, .62, 2.3, .6, 2.05);
+  s.bezierCurveTo(.56, 1.6, .6, .5, .62, .18);
+  s.lineTo(.62, 0); s.lineTo(.86, 0);
+  s.bezierCurveTo(.84, .5, .8, 1.5, .84, 2.1);
+  s.bezierCurveTo(.86, 2.62, .5, 2.86, 0, 2.9);
+  s.bezierCurveTo(-.5, 2.86, -.86, 2.62, -.84, 2.1);
+  s.bezierCurveTo(-.8, 1.5, -.84, .5, -.86, 0);
+  const g = new THREE.ExtrudeGeometry(s, { depth: .2, bevelEnabled: true, bevelSize: .035, bevelThickness: .035, bevelSegments: 5, curveSegments: 40 });
+  g.translate(0, 0, -.1); g.computeVertexNormals();
+  add(press, g, iron, 0, .18, 0);
+  // gold pinstripe following the inner opening on the front face
+  [.136, -.136].forEach((zf) => {
+    const pts = [];
+    const c1 = new THREE.CubicBezierCurve(new THREE.Vector2(-.66, .5), new THREE.Vector2(-.64, 1.4), new THREE.Vector2(-.68, 2.02), new THREE.Vector2(-.66, 2.1));
+    const c2 = new THREE.CubicBezierCurve(new THREE.Vector2(-.66, 2.1), new THREE.Vector2(-.66, 2.4), new THREE.Vector2(-.4, 2.6), new THREE.Vector2(0, 2.63));
+    [c1, c2].forEach((c) => c.getPoints(30).forEach((v) => pts.push(new THREE.Vector3(v.x, v.y + .18, zf))));
+    const half = pts.slice(); for (let k = half.length - 2; k >= 0; k--) pts.push(new THREE.Vector3(-half[k].x, half[k].y, zf));
+    add(press, new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 160, .009, 6, false), ironG, 0, 0, 0);
+  });
+  // spring box (Albion) + finial on the crown
+  lathe(press, [[0, 0], [.2, 0], [.22, .04], [.2, .08], [.17, .3], [.19, .33], [.14, .4], [.06, .44], [0, .45]], iron, 0, 3.02, 0, 40);
+  lathe(press, [[.205, .0], [.215, .02], [.205, .04]], ironG, 0, 3.07, 0, 40);
+  lathe(press, [[0, 0], [.035, 0], [.03, .05], [.07, .12], [.03, .2], [0, .22]], ironG, 0, 3.46, 0, 24);
+  // decorative bosses + bolts on the frame
+  [-1, 1].forEach((s2) => {
+    lathe(press, [[0, 0], [.09, 0], [.1, .03], [.07, .07], [0, .08]], ironG, s2 * .73, 2.45, .14, 24, { rx: Math.PI / 2 });
+    [.6, 1.1, 1.6].forEach((y) => bolt(press, s2 * .73, y, .14, Math.PI / 2));
+    // feet (curved, scroll)
+    const f = new THREE.Shape(); f.moveTo(-.18, 0); f.lineTo(.18, 0); f.bezierCurveTo(.16, .06, .1, .1, .08, .2); f.lineTo(-.08, .2); f.bezierCurveTo(-.1, .1, -.16, .06, -.18, 0);
+    const fg = new THREE.ExtrudeGeometry(f, { depth: 1.4, bevelEnabled: true, bevelSize: .02, bevelThickness: .02, bevelSegments: 3 }); fg.translate(0, 0, -.7);
+    add(press, fg, iron, s2 * .74, 0, 0);
+    [-.6, .6].forEach((z) => lathe(press, [[0, 0], [.07, 0], [.06, .03], [0, .04]], ironG, s2 * .74, .2, z, 16));
+  });
+})();
+// --- ribs (rails) on turned legs
+const rib = new THREE.Shape(); rib.moveTo(-.05, -.06); rib.lineTo(.05, -.06); rib.lineTo(.05, -.04); rib.lineTo(.015, -.04); rib.lineTo(.015, .04); rib.lineTo(.05, .04); rib.lineTo(.05, .06); rib.lineTo(-.05, .06); rib.lineTo(-.05, .04); rib.lineTo(-.015, .04); rib.lineTo(-.015, -.04); rib.lineTo(-.05, -.04); rib.closePath();
+[-.42, .42].forEach((x) => { const g = new THREE.ExtrudeGeometry(rib, { depth: 3.4, bevelEnabled: true, bevelSize: .006, bevelThickness: .006, bevelSegments: 2 }); add(press, g, iron, x, .98, -1.15); });
+[-.42, .42].forEach((x) => lathe(press, [[0, 0], [.09, 0], [.1, .03], [.05, .08], [.045, .4], [.06, .45], [.04, .52], [.045, .85], [.07, .88], [.07, .92], [0, .92]], iron, x, 0, 2.05, 24));
+rbox(press, .95, .07, .08, iron, 0, .6, 2.05, .02);
+// --- head + platen (moving)
+const head = new THREE.Group(); head.position.y = 1.62; press.add(head);
+rbox(head, 1.12, .2, .42, iron, 0, .52, 0, .05);
+lathe(head, [[0, 0], [.075, 0], [.075, 1.1], [0, 1.1]], steel, 0, .1, 0, 24);
+lathe(head, [[0, 0], [.13, 0], [.14, .04], [.13, .08], [0, .08]], ironG, 0, .42, 0, 24);
+const platen = rbox(head, .95, .09, .8, iron, 0, -.02, 0, .03);
+rbox(head, .97, .025, .82, ironG, 0, .04, 0, .01);
+[-.4, .4].forEach((x) => [-.33, .33].forEach((z) => bolt(head, x, .055, z)));
+// --- bar (curved lever) on the right side
+const barPivot = new THREE.Group(); barPivot.position.set(.78, 2.15, .06); press.add(barPivot);
+lathe(barPivot, [[0, -.12], [.1, -.12], [.11, -.06], [.11, .06], [.1, .12], [0, .12]], iron, 0, 0, 0, 24, { rx: Math.PI / 2 });
+const barCurve = new THREE.CatmullRomCurve3([new THREE.Vector3(0, 0, .1), new THREE.Vector3(.35, -.02, .2), new THREE.Vector3(.75, -.1, .32), new THREE.Vector3(1.1, -.22, .42)]);
+add(barPivot, new THREE.TubeGeometry(barCurve, 40, .035, 10, false), steel, 0, 0, 0);
+const hEnd = barCurve.getPoint(1);
+const handle = lathe(barPivot, [[0, 0], [.045, 0], [.055, .06], [.05, .25], [.06, .32], [.04, .36], [0, .37]], woodM, hEnd.x, hEnd.y, hEnd.z, 20);
+handle.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), barCurve.getTangent(1).normalize());
+// --- carriage (bed + tympan) slides along z
+const carriage = new THREE.Group(); press.add(carriage);
+rbox(carriage, .98, .1, 1.12, iron, 0, 1.08, 0, .025);
+rbox(carriage, .8, .035, .92, M(0x0d0d0e, { roughness: .3, metalness: .4 }), 0, 1.14, 0, .01);
+const typeT = ctex(256, 256, (g) => { g.fillStyle = "#151515"; g.fillRect(0, 0, 256, 256); g.fillStyle = "#3a3a3e"; for (let y = 12; y < 256; y += 14) for (let x = 10; x < 246; x += 8 + Math.random() * 6) g.fillRect(x, y, 5 + Math.random() * 3, 8); });
+box(carriage, .7, .015, .8, M(0xffffff, { map: typeT, metalness: .6, roughness: .35, envMap: envTex }), 0, 1.163, 0);
+[-.43, .43].forEach((x) => [-.48, .48].forEach((z) => bolt(carriage, x, 1.135, z)));
+const tympanPivot = new THREE.Group(); tympanPivot.position.set(0, 1.17, .56); carriage.add(tympanPivot);
+// tympan: tube frame + parchment
+(function () {
+  const pts = [[-.45, 0], [.45, 0], [.45, 1.06], [-.45, 1.06]].map(([x, z]) => new THREE.Vector3(x, 0, z));
+  const c = new THREE.CatmullRomCurve3(pts, true, "catmullrom", .02);
+  add(tympanPivot, new THREE.TubeGeometry(c, 80, .022, 8, true), ironG, 0, 0, 0);
+  box(tympanPivot, .86, .012, 1.02, M(0xddd1b4, { roughness: 1 }), 0, 0, .53);
+  [-.45, .45].forEach((x) => lathe(tympanPivot, [[0, -.05], [.035, -.05], [.035, .05], [0, .05]], iron, x, 0, 0, 16, { rz: Math.PI / 2 }));
+})();
+// --- rounce (crank wheel)
+const rounce = new THREE.Group(); rounce.position.set(.6, .95, 1.4); press.add(rounce);
+add(rounce, new THREE.TorusGeometry(.24, .024, 10, 36), iron, 0, 0, 0, { ry: Math.PI / 2 });
+lathe(rounce, [[0, -.05], [.05, -.05], [.06, 0], [.05, .05], [0, .05]], ironG, 0, 0, 0, 16, { rz: Math.PI / 2 });
+for (let k = 0; k < 6; k++) { const sp = cyl(rounce, .012, .016, .46, iron, 0, 0, 0, null, 8); sp.rotation.x = k * Math.PI / 6; }
+lathe(rounce, [[0, 0], [.03, 0], [.035, .05], [.03, .15], [0, .16]], woodM, .03, .24, 0, 14, { rz: -Math.PI / 2 });
+cyl(press, .025, .025, .7, steel, .3, .95, 1.4, { rz: Math.PI / 2 }, 10);
+press.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+
+// ---------- side tables with turned legs
+function table(x, z) {
+  const t = new THREE.Group(); t.position.set(x, 0, z); scene.add(t);
+  rbox(t, .95, .07, .72, woodM, 0, .96, 0, .025);
+  [[-.4, -.29], [.4, -.29], [-.4, .29], [.4, .29]].forEach(([lx, lz]) => lathe(t, [[0, 0], [.03, 0], [.035, .05], [.025, .3], [.04, .45], [.028, .6], [.04, .85], [.045, .93], [0, .93]], woodM, lx, 0, lz, 14));
+  rbox(t, .85, .06, .03, woodM, 0, .86, .3, .01); rbox(t, .85, .06, .03, woodM, 0, .86, -.3, .01);
+  return t;
+}
+const it = table(-1.95, .6);
+rbox(it, .7, .02, .5, M(0x050505, { roughness: .15, metalness: .3, envMap: envTex }), 0, 1.005, 0, .005);
+[-.2, .2].forEach((x) => { lathe(it, [[0, 0], [.025, 0], [.02, .28], [.03, .3], [0, .31]], woodM, x, 1.12, .1, 12); lathe(it, [[0, 0], [.14, 0], [.13, .05], [.09, .1], [0, .12]], M(0x3a2618, { roughness: .9 }), x, 1.0, .1, 20); });
+const pt = table(1.95, .8);
+for (let k = 0; k < 14; k++) rbox(pt, .6, .016, .74, M(k % 2 ? 0xeee4cc : 0xe4d9bf, { roughness: 1 }), (Math.random() - .5) * .03, 1.008 + k * .017, (Math.random() - .5) * .03, .004, { ry: (Math.random() - .5) * .06 });
+
+
+// ---------- newspapers
+const PW = 1.6, PH = 2.2;
+const paperBase = () => (IMG.paper ? IMG.paper : null);
+function fitText(g, text, maxW, size, weight, family, minSize) { let s = size; do { g.font = `${weight} ${s}px ${family}`; if (g.measureText(text).width <= maxW) break; s -= 2; } while (s > (minSize || 12)); return s; }
+function wrap(g, text, maxW) { const words = text.split(" "), out = []; let line = ""; for (const w of words) { const t = line ? line + " " + w : w; if (g.measureText(t).width > maxW && line) { out.push(line); line = w; } else line = t; } if (line) out.push(line); return out; }
+function drawBg(g, W, H) {
+  if (paperBase()) { g.drawImage(paperBase(), 0, 0, W, H); g.fillStyle = "rgba(245,236,214,.35)"; g.fillRect(0, 0, W, H); }
+  else { g.fillStyle = "#efe5cd"; g.fillRect(0, 0, W, H); for (let i = 0; i < 3000; i++) { g.fillStyle = `rgba(120,90,50,${Math.random() * .06})`; g.fillRect(Math.random() * W, Math.random() * H, 2, 2); } }
+}
+const SERIF = "'PT Serif', Georgia, serif", DISP = "Oswald, 'Arial Narrow', sans-serif";
+function masthead(g, W, P, small) {
+  g.fillStyle = "#1c150e"; g.textAlign = "center";
+  const y0 = small ? 84 : 120;
+  g.font = `400 ${small ? 26 : 46}px 'Times New Roman', serif`; g.fillText(P.arab, W / 2, y0 - (small ? 36 : 50));
+  fitText(g, P.name, W - 140, small ? 84 : 190, 700, SERIF); g.fillText(P.name, W / 2, y0 + (small ? 40 : 120));
+  const ly = y0 + (small ? 62 : 158);
+  g.fillRect(60, ly, W - 120, 5); g.fillRect(60, ly + 10, W - 120, 2);
+  g.font = `600 ${small ? 22 : 30}px ${DISP}`; g.textAlign = "left"; g.fillText(`${P.kind} · ${P.city}`.toUpperCase(), 64, ly + (small ? 38 : 48)); g.textAlign = "right"; g.fillText(P.years, W - 64, ly + (small ? 38 : 48));
+  g.fillRect(60, ly + (small ? 52 : 66), W - 120, 2);
+  return ly + (small ? 52 : 66);
+}
+function engraving(g, key, x, y, w, h) {
+  g.save(); g.fillStyle = "#d8ccb0"; g.fillRect(x, y, w, h);
+  if (IMG[key]) { const im = IMG[key]; const ar = im.width / im.height, r = w / h; let sw = im.width, sh = im.height, sx = 0, sy = 0; if (ar > r) { sw = im.height * r; sx = (im.width - sw) / 2; } else { sh = im.width / r; sy = (im.height - sh) / 2; } g.filter = "grayscale(1) contrast(1.15) sepia(.25)"; g.drawImage(im, sx, sy, sw, sh, x, y, w, h); g.filter = "none"; }
+  else { g.strokeStyle = "rgba(40,30,20,.35)"; g.lineWidth = 2; for (let k = -h; k < w; k += 14) { g.beginPath(); g.moveTo(x + k, y + h); g.lineTo(x + k + h, y); g.stroke(); } g.fillStyle = "#3a2c1c"; g.font = `600 30px ${DISP}`; g.textAlign = "center"; g.fillText("ГРАВЮРА", x + w / 2, y + h / 2 + 10); }
+  g.restore(); g.strokeStyle = "#1c150e"; g.lineWidth = 4; g.strokeRect(x, y, w, h);
+}
+function drawPage(key, idx) {
+  return (g, W, H) => {
+    drawBg(g, W, H); const P = PAPERS[key];
+    g.strokeStyle = "rgba(28,21,14,.8)"; g.lineWidth = 3; g.strokeRect(30, 30, W - 60, H - 60);
+    if (idx === 0) return;
+    if (idx === 1) { // cover
+      let y = masthead(g, W, P, false) + 40;
+      const portrait = IMG[P.portrait];
+      if (portrait) { const pw = 300, ph = 380, px = 80; g.save(); g.filter = "grayscale(1) contrast(1.1) sepia(.3)"; const ar = portrait.width / portrait.height; let sw = portrait.width, sh = portrait.height, sx = 0, sy = 0; if (ar > pw / ph) { sw = sh * pw / ph; sx = (portrait.width - sw) / 2; } else { sh = sw * ph / pw; sy = (portrait.height - sh) / 4; } g.drawImage(portrait, sx, sy, sw, sh, px, y, pw, ph); g.restore(); g.strokeStyle = "#1c150e"; g.lineWidth = 4; g.strokeRect(px, y, pw, ph); }
+      const tx = portrait ? 420 : 80, tw = W - tx - 70;
+      g.textAlign = "left"; let yy = y + 10;
+      P.cover.forEach(([a, b]) => { g.fillStyle = "#8f2a1c"; g.font = `600 30px ${DISP}`; g.fillText(a.toUpperCase(), tx, yy + 28); yy += 40; g.fillStyle = "#1c150e"; g.font = `400 46px ${SERIF}`; wrap(g, b, tw).forEach((l) => { g.fillText(l, tx, yy + 40); yy += 54; }); yy += 20; });
+      y = Math.max(yy, y + 400) + 30; g.fillRect(60, y, W - 120, 2);
+      g.font = `italic 400 46px ${SERIF}`; g.textAlign = "center"; wrap(g, "«" + P.motto + "»", W - 180).forEach((l, k) => g.fillText(l, W / 2, y + 80 + k * 60));
+      g.fillStyle = "rgba(28,21,14,.55)"; g.font = `400 26px ${SERIF}`; for (let k = 0; k < 6; k++) { g.fillRect(80 + (k % 2) * (W / 2 - 40), H - 330 + Math.floor(k / 2) * 80, W / 2 - 120, 3); }
+      g.fillStyle = "#1c150e"; g.font = `600 28px ${DISP}`; g.fillText("№ 1", W / 2, H - 70);
+      return;
+    }
+    let y = masthead(g, W, P, true) + 30;
+    if (idx === 6) {
+      g.fillStyle = "#1c150e"; g.textAlign = "center"; fitText(g, COMMON.t, W - 140, 76, 700, SERIF); g.fillText(COMMON.t, W / 2, y + 80); y += 150;
+      g.textAlign = "left"; g.font = `400 46px ${SERIF}`;
+      COMMON.p.forEach((t) => { g.fillStyle = "#2f6b3e"; g.fillText("✓", 90, y + 36); g.fillStyle = "#1c150e"; wrap(g, t, W - 260).forEach((l) => { g.fillText(l, 150, y + 36); y += 58; }); y += 30; });
+      g.save(); g.translate(W / 2, H - 250); g.rotate(-.12); g.strokeStyle = "#2f6b3e"; g.fillStyle = "#2f6b3e"; g.lineWidth = 9; g.strokeRect(-230, -60, 460, 120); g.font = `700 70px ${DISP}`; g.textAlign = "center"; g.fillText("СОГЛАСНЫ", 0, 26); g.restore();
+      return;
+    }
+    const T = TOPICS[idx - 2], S = T[key];
+    g.fillStyle = "#8f2a1c"; g.textAlign = "center"; g.font = `600 30px ${DISP}`; g.fillText(T.t.toUpperCase(), W / 2, y + 40); y += 56;
+    g.fillStyle = "#1c150e"; let fs = fitText(g, S.h, W - 120, 74, 700, SERIF, 50); const hl = wrap(g, S.h, W - 120); if (hl.length > 1) { g.font = `700 64px ${SERIF}`; fs = 64; }
+    wrap(g, S.h, W - 120).forEach((l) => { g.fillText(l, W / 2, y + fs); y += fs * 1.15; }); y += 26;
+    if (S.img) { engraving(g, S.img, 70, y, W - 140, 520); y += 560; } else y += 20;
+    g.textAlign = "left"; g.font = `400 ${S.img ? 42 : 50}px ${SERIF}`; const lh = S.img ? 54 : 64;
+    S.p.forEach((t) => { g.fillStyle = "#8f2a1c"; g.fillRect(76, y + 18, 14, 14); g.fillStyle = "#1c150e"; wrap(g, t, W - 200).forEach((l) => { g.fillText(l, 110, y + 36); y += lh; }); y += 18; });
+  };
+}
+function makePaper(key) {
+  const grp = new THREE.Group(); scene.add(grp);
+  const pages = []; for (let i = 0; i <= 6; i++) pages.push(ctex(1100, 1512, drawPage(key, i)));
+  const backT = ctex(512, 704, (g, W, H) => { drawBg(g, W, H); g.fillStyle = "rgba(28,21,14,.12)"; for (let y = 80; y < H - 60; y += 22) g.fillRect(50 + ((y / 22) % 3 === 0 ? 260 : 0), y, (y / 22) % 3 === 0 ? 180 : 410, 6); });
+  // base page (left edge at x=0 → shift to center)
+  const baseMat = new THREE.MeshStandardMaterial({ map: pages[0], roughness: .95, color: 0xe8e0d0 });
+  const base = new THREE.Mesh(new THREE.PlaneGeometry(PW, PH), baseMat); base.castShadow = true; grp.add(base);
+  const backSide = new THREE.Mesh(new THREE.PlaneGeometry(PW, PH), new THREE.MeshStandardMaterial({ map: backT, roughness: .95 })); backSide.rotation.y = Math.PI; backSide.position.z = -.002; grp.add(backSide);
+  // flipping sheet
+  const fg = new THREE.PlaneGeometry(PW, PH, 1, 24); fg.translate(0, -PH / 2, 0); const fbase = fg.attributes.position.array.slice();
+  const flipFront = new THREE.Mesh(fg, new THREE.MeshStandardMaterial({ map: pages[0], roughness: .95, side: THREE.FrontSide }));
+  const flipBack = new THREE.Mesh(fg, new THREE.MeshStandardMaterial({ map: backT, roughness: .95, side: THREE.BackSide }));
+  const flipG = new THREE.Group(); flipG.position.set(0, PH / 2, .004); flipG.add(flipFront, flipBack); flipG.visible = false; grp.add(flipG);
+  const P = { key, grp, pages, baseMat, flipFront, flipG, fg, fbase, page: 0, flip: null };
+  P.setPage = (i) => { P.page = i; baseMat.map = pages[i]; baseMat.needsUpdate = true; P.flip = null; flipG.visible = false; };
+  P.flipTo = (i, dur) => { if (i === P.page) return; flipFront.material.map = pages[P.page]; flipFront.material.needsUpdate = true; baseMat.map = pages[i]; baseMat.needsUpdate = true; P.page = i; P.flip = { t0: performance.now(), dur: dur || (window.__slowFlip || 1100) }; flipG.visible = true; bendFlip(0); };
+  function bendFlip(th) {
+    const a = fg.attributes.position.array;
+    for (let k = 0; k < a.length; k += 3) { const d = -fbase[k + 1], u = d / PH, ang = th * (1 - .3 * Math.sin(th) * u); a[k] = fbase[k]; a[k + 1] = -d * Math.cos(ang); a[k + 2] = d * Math.sin(ang) + Math.sin(u * Math.PI) * .08 * Math.sin(th); }
+    fg.attributes.position.needsUpdate = true; fg.computeVertexNormals();
+  }
+  P.update = (now) => { if (!P.flip) return; const p = clamp((now - P.flip.t0) / P.flip.dur, 0, 1); bendFlip(easeIO(p) * Math.PI); if (p >= 1) { P.flip = null; flipG.visible = false; } };
+  P.redraw = () => { pages.forEach((t) => t.draw()); backT.draw(); };
+  grp.traverse((o) => { if (o.isMesh) o.castShadow = true; });
+  grp.visible = false; return P;
+}
+const papers = { a: makePaper("a"), k: makePaper("k") };
+imgWaiters.push(() => { papers.a.redraw(); papers.k.redraw(); });
+
+// poses
+const tmpQ = new THREE.Quaternion(), tmpE = new THREE.Euler();
+const BED = () => { const v = new THREE.Vector3(0, 1.215, .56 + .53); return v; };
+function bedPose() { return { p: new THREE.Vector3(0, 1.215, 1.09), q: tmpQ.setFromEuler(tmpE.set(-Math.PI / 2, 0, 0)).clone(), s: .5 }; }
+function slotPose(key) {
+  const m = isMobile(); const x = key === "a" ? -1.0 : 1.0;
+  return { p: new THREE.Vector3(m ? x * 1.02 : x, 2.25, 1.9), q: new THREE.Quaternion().setFromEuler(new THREE.Euler(-.06, key === "a" ? .07 : -.07, 0)), s: m ? .95 : 1 };
+}
+function soloPose() { return { p: new THREE.Vector3(0, 2.25, 1.9), q: new THREE.Quaternion().setFromEuler(new THREE.Euler(-.06, 0, 0)), s: 1 }; }
+function applyPose(P, pose) { P.grp.position.copy(pose.p); P.grp.quaternion.copy(pose.q); P.grp.scale.setScalar(pose.s); }
+
+// ---------- camera
+const CAM = {
+  intro: [new THREE.Vector3(3.6, 2.6, 5.2), new THREE.Vector3(0, 1.4, 0)],
+  press: [new THREE.Vector3(2.5, 2.6, 4.1), new THREE.Vector3(0, 1.6, .4)],
+  read: [new THREE.Vector3(0, 1.95, 5.85), new THREE.Vector3(0, 1.86, 1.9)],
+  readM: [new THREE.Vector3(0, 1.7, 8.2), new THREE.Vector3(0, 1.5, 1.9)],
+  zoomA: [new THREE.Vector3(-1.0, 2.2, 3.85), new THREE.Vector3(-1.0, 2.2, 1.9)],
+  zoomK: [new THREE.Vector3(1.0, 2.2, 3.85), new THREE.Vector3(1.0, 2.2, 1.9)],
+};
+const readCam = () => (isMobile() ? CAM.readM : CAM.read);
+const camP = CAM.intro[0].clone(), camT = CAM.intro[1].clone();
+let camTw = null, yawOff = 0, pitchOff = 0, introA = 0;
+function camTo(c, dur) { camTw = { p0: camP.clone(), t0: camT.clone(), p1: c[0].clone(), t1: c[1].clone(), s: performance.now(), d: dur || 1400 }; }
+
+// ---------- tweens
+const tweens = [];
+function tw(d, f) { return new Promise((res) => tweens.push({ s: performance.now(), d, f, res })); }
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+function lerpPose(P, a, b, e) { P.grp.position.lerpVectors(a.p, b.p, e); THREE.Quaternion.slerp(a.q, b.q, P.grp.quaternion, e); P.grp.scale.setScalar(lerp(a.s, b.s, e)); const lift = Math.sin(e * Math.PI) * .6; P.grp.position.y += lift; }
+
+// press animation (resolves when sheet printed)
+const CAR_OUT = 0, CAR_IN = -1.05;
+async function printSheet(P) {
+  P.setPage(0);
+  await tw(450, (e) => { tympanPivot.rotation.x = -1.9 * e; });
+  const open = { p: new THREE.Vector3(0, 1.9, 1.75), q: new THREE.Quaternion().setFromEuler(new THREE.Euler(-.4, 0, 0)), s: .5 };
+  applyPose(P, open); P.grp.visible = true;
+  await tw(800, (e) => { tympanPivot.rotation.x = -1.9 * (1 - e); const b = bedPose(); P.grp.position.lerpVectors(open.p, b.p, e); THREE.Quaternion.slerp(open.q, b.q, P.grp.quaternion, e); });
+  await tw(900, (e) => { carriage.position.z = lerp(CAR_OUT, CAR_IN, e); rounce.rotation.x = -e * 6; P.grp.position.z = 1.09 + carriage.position.z; });
+  await tw(500, (e) => { barPivot.rotation.z = -e * 1.0; head.position.y = 1.62 - e * .32; });
+  P.setPage(1);
+  await tw(450, (e) => { barPivot.rotation.z = -(1 - e) * 1.0; head.position.y = 1.62 - (1 - e) * .32; });
+  await tw(900, (e) => { carriage.position.z = lerp(CAR_IN, CAR_OUT, e); rounce.rotation.x = -(1 - e) * 6; P.grp.position.z = 1.09 + carriage.position.z; });
+}
+async function flyTo(P, pose, dur) { const from = { p: P.grp.position.clone(), q: P.grp.quaternion.clone(), s: P.grp.scale.x }; await tw(dur || 1300, (e) => lerpPose(P, from, pose, e)); applyPose(P, pose); }
+
+// ---------- steps
+let step = -1, busy = false, zoomed = null;
+const stepsEl = $("steps");
+STEPS.forEach((s, i) => { const b = document.createElement("button"); b.type = "button"; b.className = "step"; b.textContent = s.short; b.addEventListener("click", () => jump(i)); stepsEl.appendChild(b); s.el = b; });
+$("cmp").innerHTML = `<tr><th>Вопрос</th><th>«Айқап»</th><th>«Қазақ»</th></tr>` + CMP.map((r) => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join("") + `<tr class="same"><td>Общее</td><td colspan="2">Защита земли, просвещение, развитие казахского языка и литературы, права казахов</td></tr>`;
+function ui() {
+  STEPS.forEach((s, i) => { s.el.classList.toggle("on", i === step); s.el.classList.toggle("done", i < step); });
+  const s = STEPS[step]; if (s && s.x) { $("capT").textContent = s.t; $("capX").innerHTML = s.x; $("cap").classList.remove("off"); } else $("cap").classList.add("off");
+  $("prev").disabled = step <= 0; $("next").textContent = step >= STEPS.length - 2 ? "Итог →" : "Дальше →";
+}
+const pageFor = (i) => (i <= 2 ? 1 : i <= 6 ? i - 1 : 6);
+// instant state (for jumps/back)
+function setState(i) {
+  zoomed = null; tympanPivot.rotation.x = 0; carriage.position.z = 0; barPivot.rotation.z = 0; head.position.y = 1.62;
+  $("final").hidden = true;
+  if (i <= 0) { papers.a.grp.visible = papers.k.grp.visible = false; camTo(CAM.press); return; }
+  papers.a.grp.visible = true; papers.a.setPage(pageFor(i));
+  if (i === 1) { papers.k.grp.visible = false; applyPose(papers.a, soloPose()); camTo(readCam()); return; }
+  papers.k.grp.visible = true; papers.k.setPage(pageFor(i)); applyPose(papers.a, slotPose("a")); applyPose(papers.k, slotPose("k")); camTo(readCam());
+}
+async function forward() {
+  if (busy) return;
+  const i = step + 1; if (i >= STEPS.length) return;
+  busy = true; step = i; ui(); zoomed = null;
+  try {
+    if (i === 0) { camTo(CAM.press, 1800); await wait(1800); }
+    else if (i === 1) { camTo(CAM.press, 900); await wait(700); await printSheet(papers.a); camTo(readCam(), 1500); await flyTo(papers.a, soloPose(), 1400); }
+    else if (i === 2) { camTo(CAM.press, 1100); const sp = slotPose("a"); flyTo(papers.a, sp, 1100); await wait(900); await printSheet(papers.k); camTo(readCam(), 1500); await flyTo(papers.k, slotPose("k"), 1400); }
+    else if (i <= 7) { camTo(readCam(), 900); papers.a.flipTo(pageFor(i)); await wait(140); papers.k.flipTo(pageFor(i)); await wait(1200); }
+    else { $("final").hidden = false; }
+  } finally { busy = false; }
+}
+function jump(i) { if (busy) return; if (i === step + 1) { forward(); return; } step = i; ui(); if (i === STEPS.length - 1) { setState(i - 1); $("final").hidden = false; } else setState(i); }
+function backward() { if (busy || step <= 0) return; jump(step - 1); }
+function start() { $("intro").hidden = true; $("hud").hidden = false; $("nav").hidden = false; forward(); }
+$("start").addEventListener("click", start);
+$("next").addEventListener("click", () => { if (step < 0) start(); else forward(); });
+$("prev").addEventListener("click", backward);
+$("back").addEventListener("click", () => { $("final").hidden = true; step = STEPS.length - 2; ui(); setState(step); });
+$("fs").addEventListener("click", () => { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); });
+document.addEventListener("keydown", (e) => {
+  if (e.key === "ArrowRight" || e.key === "PageDown") { e.preventDefault(); if (step < 0) start(); else if (!$("final").hidden) return; else forward(); }
+  else if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); if (!$("final").hidden) $("back").click(); else backward(); }
+  else if (e.key === "Enter" && step < 0) { e.preventDefault(); start(); }
+  else if (e.key === "Escape" && zoomed) { zoomed = null; camTo(readCam(), 800); }
+});
+// click on paper -> zoom
+const ray = new THREE.Raycaster(), mouse = new THREE.Vector2();
+let down = null;
+canvas.addEventListener("pointerdown", (e) => { down = { x: e.clientX, y: e.clientY, yaw: yawOff, pitch: pitchOff, a: introA, moved: false }; canvas.setPointerCapture(e.pointerId); });
+canvas.addEventListener("pointermove", (e) => { if (!down) return; const dx = e.clientX - down.x, dy = e.clientY - down.y; if (Math.abs(dx) + Math.abs(dy) > 5) down.moved = true; if (step < 0) introA = down.a - dx * .004; else { yawOff = clamp(down.yaw - dx * .002, -.35, .35); pitchOff = clamp(down.pitch + dy * .0015, -.15, .15); } });
+canvas.addEventListener("pointerup", (e) => {
+  const d = down; down = null; if (!d || d.moved || busy || step < 1) return;
+  mouse.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1); ray.setFromCamera(mouse, camera);
+  const hits = ray.intersectObjects([papers.a.grp, papers.k.grp].filter((g) => g.visible), true);
+  if (!hits.length) { if (zoomed) { zoomed = null; camTo(readCam(), 800); } return; }
+  let o = hits[0].object; while (o && o !== papers.a.grp && o !== papers.k.grp) o = o.parent;
+  const k = o === papers.a.grp ? "a" : "k";
+  if (zoomed === k || step === 1) { zoomed = null; camTo(readCam(), 800); } else { zoomed = k; camTo(k === "a" ? CAM.zoomA : CAM.zoomK, 900); }
+});
+
+// ---------- loop
+function resize() { const w = innerWidth, h = innerHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.fov = w < 700 ? 60 : 45; camera.updateProjectionMatrix(); }
+addEventListener("resize", resize); resize();
+let last = performance.now();
+function loop(now) {
+  const dt = Math.min(.05, (now - last) / 1000); last = now; const t = now / 1000;
+  for (let k = tweens.length - 1; k >= 0; k--) { const T = tweens[k]; const p = clamp((now - T.s) / T.d, 0, 1); T.f(easeIO(p)); if (p >= 1) { tweens.splice(k, 1); T.res(); } }
+  if (camTw) { const p = clamp((now - camTw.s) / camTw.d, 0, 1), e = easeIO(p); camP.lerpVectors(camTw.p0, camTw.p1, e); camT.lerpVectors(camTw.t0, camTw.t1, e); if (p >= 1) camTw = null; }
+  if (step < 0) { if (!down) introA += dt * .08; const r = 6.2; camP.set(Math.sin(introA + .6) * r, 2.7, Math.cos(introA + .6) * r); camT.set(0, 1.6, 0); }
+  if (!down) { yawOff *= .94; pitchOff *= .94; }
+  const off = camP.clone().sub(camT); off.applyAxisAngle(new THREE.Vector3(0, 1, 0), yawOff); off.y += pitchOff * off.length();
+  camera.position.copy(camT).add(off); camera.lookAt(camT);
+  papers.a.update(now); papers.k.update(now);
+  const reading = step >= 1 && !busy; readLight.intensity += ((reading ? .9 : 0) - readLight.intensity) * Math.min(1, dt * 3);
+  if (reading) [papers.a, papers.k].forEach((P, k) => { if (P.grp.visible && !P.flip) P.grp.position.y = P.grp.position.y * .9 + (step === 1 && k === 0 ? soloPose() : slotPose(P.key)).p.y * .1 + Math.sin(t * 1.3 + k) * .0015; });
+  renderer.render(scene, camera);
+  requestAnimationFrame(loop);
+}
+function ready() { $("loading").classList.add("done"); }
+manager.onLoad = ready; setTimeout(ready, 8000);
+if (document.fonts) { document.fonts.ready.then(() => { papers.a.redraw(); papers.k.redraw(); }); }
+ui();
+window.__press = { forward, jump, get step() { return step; }, get busy() { return busy; } };
+requestAnimationFrame(loop);
+})();
+</script>
+</body></html>
